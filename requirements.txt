@@ -1,0 +1,10 @@
+# For data manipulation
+pandas
+numpy
+
+# For machine learning
+scikit-learn
+joblib
+
+# For the web application interface
+streamlit
