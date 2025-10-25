@@ -75,12 +75,16 @@ if model and scaler:
     prediction = model.predict(input_scaled)
 
     st.subheader("Prediction Result")
-    col1, col2 = st.columns(2)
+
+    # Create two columns
+    col1, col2 = st.columns([1, 1.5])
 
     with col1:
-        st.metric(label="Predicted Corrosion Rate", value=f"{prediction[0]:.4f} mm/year")
+        st.markdown("#### Current Settings")
+        st.dataframe(input_df)
 
     with col2:
+        st.metric(label="Predicted Corrosion Rate", value=f"{prediction[0]:.4f} mm/year")
         if prediction[0] < 0.2:
             st.success("✅ **Low Risk:** Standard monitoring is likely sufficient.")
         elif prediction[0] < 0.5:
@@ -94,3 +98,37 @@ if model and scaler:
         This tool is powered by a **Random Forest** model trained on 2,000 synthetic data points.
         When you adjust the sliders, your inputs are scaled and fed to the model to generate a live prediction.
         """)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# ... (inside the 'if model and scaler:' block)
+
+st.markdown("---")
+st.subheader("Which Factors Matter Most?")
+
+# Get feature importances from the model
+feature_importances = model.feature_importances_
+features = ['Temperature', 'pH', 'Chloride', 'Velocity']
+
+# Create a DataFrame for plotting
+importance_df = pd.DataFrame({
+    'Feature': features,
+    'Importance': feature_importances
+}).sort_values(by='Importance', ascending=False)
+
+# Create the plot
+fig, ax = plt.subplots(figsize=(8, 4))
+sns.barplot(x='Importance', y='Feature', data=importance_df, palette='viridis', ax=ax)
+ax.set_title('Feature Importance for Corrosion Rate')
+ax.set_xlabel('Importance')
+ax.set_ylabel('')
+
+# Display the plot in Streamlit
+st.pyplot(fig)
+
+with st.expander("How to interpret this chart"):
+    st.write("""
+        This chart shows the relative importance of each input parameter in the model's decision-making process.
+        A higher importance score means that changes to that parameter will have a larger effect on the predicted corrosion rate.
+    """)
