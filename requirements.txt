@@ -8,3 +8,7 @@ joblib
 
 # For the web application interface
 streamlit
+
+# For data visualization
+matplotlib
+seaborn
